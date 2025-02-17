@@ -16,7 +16,7 @@ app.use(express.json()); // Ensure JSON parsing
 app.use(express.json());
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:3000", // Fallback to local during development
+  origin: "https://fitness-tracker-front-end-ivory.vercel.app" || "http://localhost:3000", // Fallback to local during development
   credentials: true, // Allow cookies & headers
 }));
 
