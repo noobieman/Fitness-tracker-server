@@ -155,17 +155,19 @@ router.get('/workout-plan', verifyUser, async (req, res) => {
 
 //  View user appointments
 router.get("/my-appointments", verifyUser, async (req, res) => {
-    try {
+  try {
       const appointments = await Appointment.find({ userId: req.user._id })
-        
-  
+          .populate("trainerId", "name ") // Fetch trainer details
+          .populate("userId", "name email") // Fetch user details if needed
+          .sort({ date: -1 }); // Sort appointments by latest date
+
       res.status(200).json({ appointments });
-  
-    } catch (error) {
+  } catch (error) {
       console.error("Error fetching appointments:", error);
       res.status(500).json({ message: "Server error." });
-    }
-  });
+  }
+});
+
   
   // Cancel appointment
   // ❌ Cancel an appointment
