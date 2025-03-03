@@ -4,6 +4,51 @@ const { verifyTrainer } = require("../middleware/TrainerAuth"); // Middleware to
 const User = require('../models/User');
 const WorkoutPlan = require('../models/WorkoutPlan')
 const Nutrition = require('../models/Nutrition')
+const Appointment = require("../models/Appointment");
+
+//get user appointments
+router.get('/appointments', verifyTrainer, async (req, res) => {
+  try {
+      const trainer = req.user;
+      console.log("Trainer ID:", trainer._id); // Debugging output
+
+      // Fetch appointments where trainerId matches
+      const newAppointments = await Appointment.find({ trainerId: trainer._id })
+          .populate("userId", "name email") // Populate user details
+          .sort({ date: -1 });
+
+      res.status(200).json({ appointments: newAppointments });
+  } catch (error) { 
+      console.error('Error fetching appointments:', error);
+      res.status(500).json({ message: 'Error fetching appointments', error });
+  }
+});
+
+// update user appointment status
+router.put('/appointments/:id', verifyTrainer, async (req, res) => {
+  try {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      // Find the appointment by ID
+      const appointment = await Appointment.findById(id); 
+
+      if (!appointment) {
+          return res.status(404).json({ message: 'Appointment not found' });
+      }
+
+      // Update the appointment status
+      appointment.status = status;
+
+      // Save the updated appointment
+      await appointment.save();
+
+      res.status(200).json({ message: 'Appointment status updated successfully', appointment });
+  } catch (error) {
+      console.error('Error updating appointment status:', error);
+      res.status(500).json({ message: 'Error updating appointment status', error });
+  }
+});
 
 // View Assigned Clients
 router.get('/clients', verifyTrainer, async (req, res) => {
@@ -111,7 +156,9 @@ router.delete('/:id', verifyTrainer, async (req, res) => {
       res.status(500).json({ message: 'Error deleting workout plan', error });
     }
   });
-  
+
+ 
+
 // Get nutrition plans for users assigned to a trainer
 router.get('/user-diet/:userId', verifyTrainer, async (req, res) => {
     try {
@@ -135,6 +182,11 @@ router.get('/user-diet/:userId', verifyTrainer, async (req, res) => {
         res.status(500).json({ message: "Error fetching nutrition plans", error });
     }
 });
+
+
+
+
+
 
 
 module.exports = router;
