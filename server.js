@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.json()); // Ensure JSON parsing
 // Middleware
-
+app.use(express.json());
 
 const allowedOrigins = [
   "http://localhost:3000", // For local testing
